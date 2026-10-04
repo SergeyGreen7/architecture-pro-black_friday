@@ -1,4 +1,4 @@
-name: mongo-sharding-repl
+name: sharding-repl-cache
 
 services:
   configSrv:
@@ -79,6 +79,12 @@ services:
       - shard2-2
       - shard2-3
 
+  redis:
+    container_name: redis
+    image: dh-mirror.gitverse.ru/redis:latest
+    ports:
+      - "6379:6379"
+
   pymongo_api:
     container_name: pymongo_api
     build:
@@ -86,11 +92,13 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - mongos_router
+      - redis
     ports:
       - "8080:8080"
     environment:
       MONGODB_URL: "mongodb://mongos_router:27020"
       MONGODB_DATABASE_NAME: "somedb"
+      REDIS_URL: "redis://redis:6379"
 
 volumes:
   configSrv_data:

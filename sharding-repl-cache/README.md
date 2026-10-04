@@ -1,6 +1,5 @@
-# mongo-sharding-repl
-
-Запускать команды из директории `mongo-sharding-repl`.
+# sharding-repl-cache
+Запускать команды из директории `sharding-repl-cache`.
 
 ## Как запустить
 
