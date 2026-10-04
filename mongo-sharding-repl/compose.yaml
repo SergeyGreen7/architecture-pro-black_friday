@@ -10,23 +10,59 @@ services:
     ports:
       - "27017:27017"
 
-  shard1:
-    container_name: shard1
+  shard1-1:
+    container_name: shard1-1
     image: dh-mirror.gitverse.ru/mongo:latest
     command: ["mongod", "--shardsvr", "--replSet", "shard1", "--port", "27018", "--bind_ip_all"]
     volumes:
-      - shard1_data:/data/db
+      - shard1_1_data:/data/db
     ports:
       - "27018:27018"
 
-  shard2:
-    container_name: shard2
+  shard1-2:
+    container_name: shard1-2
+    image: dh-mirror.gitverse.ru/mongo:latest
+    command: ["mongod", "--shardsvr", "--replSet", "shard1", "--port", "27018", "--bind_ip_all"]
+    volumes:
+      - shard1_2_data:/data/db
+    ports:
+      - "27021:27018"
+
+  shard1-3:
+    container_name: shard1-3
+    image: dh-mirror.gitverse.ru/mongo:latest
+    command: ["mongod", "--shardsvr", "--replSet", "shard1", "--port", "27018", "--bind_ip_all"]
+    volumes:
+      - shard1_3_data:/data/db
+    ports:
+      - "27022:27018"
+
+  shard2-1:
+    container_name: shard2-1
     image: dh-mirror.gitverse.ru/mongo:latest
     command: ["mongod", "--shardsvr", "--replSet", "shard2", "--port", "27019", "--bind_ip_all"]
     volumes:
-      - shard2_data:/data/db
+      - shard2_1_data:/data/db
     ports:
       - "27019:27019"
+
+  shard2-2:
+    container_name: shard2-2
+    image: dh-mirror.gitverse.ru/mongo:latest
+    command: ["mongod", "--shardsvr", "--replSet", "shard2", "--port", "27019", "--bind_ip_all"]
+    volumes:
+      - shard2_2_data:/data/db
+    ports:
+      - "27023:27019"
+
+  shard2-3:
+    container_name: shard2-3
+    image: dh-mirror.gitverse.ru/mongo:latest
+    command: ["mongod", "--shardsvr", "--replSet", "shard2", "--port", "27019", "--bind_ip_all"]
+    volumes:
+      - shard2_3_data:/data/db
+    ports:
+      - "27024:27019"
 
   mongos_router:
     container_name: mongos_router
@@ -36,8 +72,12 @@ services:
       - "27020:27020"
     depends_on:
       - configSrv
-      - shard1
-      - shard2
+      - shard1-1
+      - shard1-2
+      - shard1-3
+      - shard2-1
+      - shard2-2
+      - shard2-3
 
   pymongo_api:
     container_name: pymongo_api
@@ -54,5 +94,9 @@ services:
 
 volumes:
   configSrv_data:
-  shard1_data:
-  shard2_data:
+  shard1_1_data:
+  shard1_2_data:
+  shard1_3_data:
+  shard2_1_data:
+  shard2_2_data:
+  shard2_3_data:
