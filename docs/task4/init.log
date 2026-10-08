@@ -1,0 +1,110 @@
+Ожидаем готовности mongod...
+1. Инициализация configSrv
+test> | | | | | | {
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1791485384, i: 1 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1791485384, i: 1 })
+}
+test> 2. Инициализация replica set shard1 (3 реплики)
+test> | | | | | | | {
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1791485385, i: 1 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1791485385, i: 1 })
+}
+test> 3. Инициализация replica set shard2 (3 реплики)
+test> | | | | | | | {
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1791485385, i: 1 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1791485385, i: 1 })
+}
+test> Ожидаем PRIMARY и все реплики...
+Перезапускаем mongos_router
+[+] Restarting 1/1
+ ✔ Container mongos_router  Started                                                         10.3s 
+4. Добавление шардов, шардирование и тестовые данные
+[direct: mongos] test> {
+  shardAdded: 'shard1',
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1791485411, i: 73 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1791485411, i: 73 })
+}
+[direct: mongos] test> {
+  shardAdded: 'shard2',
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1791485412, i: 58 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1791485412, i: 58 })
+}
+[direct: mongos] test> {
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1791485412, i: 81 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1791485412, i: 81 })
+}
+[direct: mongos] test> {
+  collectionsharded: 'somedb.helloDoc',
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1791485412, i: 130 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1791485412, i: 130 })
+}
+[direct: mongos] test> switched to db somedb
+[direct: mongos] somedb> {
+  acknowledged: true,
+  insertedId: ObjectId('6ac7e5e6a196cf3f0f2b0156')
+}
+[direct: mongos] somedb> 1000
+[direct: mongos] somedb> 
+Проверка: всего документов через mongos
+[direct: mongos] test> switched to db somedb
+[direct: mongos] somedb> 1000
+[direct: mongos] somedb> Проверка: документы в shard1
+shard1 [direct: primary] test> switched to db somedb
+shard1 [direct: primary] somedb> 492
+shard1 [direct: primary] somedb> Проверка: документы в shard2
+shard2 [direct: primary] test> switched to db somedb
+shard2 [direct: primary] somedb> 508
+shard2 [direct: primary] somedb> Проверка: число реплик shard1
+3
+Проверка: число реплик shard2
+3
+sergey@Sergeys-MacBook-Pro sharding-repl-cache % 

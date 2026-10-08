@@ -1,0 +1,11 @@
+[+] Running 10/10
+ ✔ Network mongo-sharding-repl_default  Created                                              0.0s 
+ ✔ Container shard1-3                   Started                                              1.3s 
+ ✔ Container shard1-1                   Started                                              1.3s 
+ ✔ Container shard2-1                   Started                                              1.4s 
+ ✔ Container shard2-2                   Started                                              1.2s 
+ ✔ Container shard1-2                   Started                                              1.1s 
+ ✔ Container configSrv                  Started                                              1.3s 
+ ✔ Container shard2-3                   Started                                              1.2s 
+ ✔ Container mongos_router              Started                                              2.0s 
+ ✔ Container pymongo_api                Started                                              2.1s

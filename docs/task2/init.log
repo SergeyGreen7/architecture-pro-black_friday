@@ -1,0 +1,106 @@
+Ожидаем готовности mongod...
+1. Инициализация configSrv
+test> | | | | | | {
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1791484641, i: 1 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1791484641, i: 1 })
+}
+test> 2. Инициализация shard1
+test> | | | | | {
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1791484642, i: 1 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1791484642, i: 1 })
+}
+test> 3. Инициализация shard2
+test> | | | | | {
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1791484643, i: 1 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1791484643, i: 1 })
+}
+test> Ожидаем выбор primary в replica set...
+Перезапускаем mongos_router
+[+] Restarting 1/1
+ ✔ Container mongos_router  Started                                                         10.3s 
+4. Добавление шардов, шардирование и тестовые данные
+[direct: mongos] test> {
+  shardAdded: 'shard1',
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1791484667, i: 73 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1791484667, i: 73 })
+}
+[direct: mongos] test> {
+  shardAdded: 'shard2',
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1791484667, i: 121 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1791484667, i: 121 })
+}
+[direct: mongos] test> {
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1791484667, i: 144 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1791484667, i: 144 })
+}
+[direct: mongos] test> {
+  collectionsharded: 'somedb.helloDoc',
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1791484667, i: 193 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1791484667, i: 193 })
+}
+[direct: mongos] test> switched to db somedb
+[direct: mongos] somedb> {
+  acknowledged: true,
+  insertedId: ObjectId('6ac7e2fd9a1d4373075e1c7c')
+}
+[direct: mongos] somedb> 1000
+[direct: mongos] somedb> 
+Проверка: всего документов через mongos
+[direct: mongos] test> switched to db somedb
+[direct: mongos] somedb> 1000
+[direct: mongos] somedb> Проверка: документы в shard1
+shard1 [direct: primary] test> switched to db somedb
+shard1 [direct: primary] somedb> 492
+shard1 [direct: primary] somedb> Проверка: документы в shard2
+shard2 [direct: primary] test> switched to db somedb
+shard2 [direct: primary] somedb> 508
+shard2 [direct: primary] somedb> %     
