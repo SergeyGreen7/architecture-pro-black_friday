@@ -1,0 +1,19 @@
+[+] Running 18/18
+ ✔ Network sharding-repl-cache_default          Cre...                                       0.0s 
+ ✔ Volume "sharding-repl-cache_configSrv_data"  Created                                      0.0s 
+ ✔ Volume "sharding-repl-cache_shard1_3_data"   Created                                      0.0s 
+ ✔ Volume "sharding-repl-cache_shard2_3_data"   Created                                      0.0s 
+ ✔ Volume "sharding-repl-cache_shard2_1_data"   Created                                      0.0s 
+ ✔ Volume "sharding-repl-cache_shard1_2_data"   Created                                      0.0s 
+ ✔ Volume "sharding-repl-cache_shard2_2_data"   Created                                      0.0s 
+ ✔ Volume "sharding-repl-cache_shard1_1_data"   Created                                      0.0s 
+ ✔ Container shard1-2                           Started                                      0.9s 
+ ✔ Container shard1-1                           Started                                      0.9s 
+ ✔ Container redis                              Started                                      0.8s 
+ ✔ Container shard2-1                           Started                                      0.9s 
+ ✔ Container shard1-3                           Started                                      1.0s 
+ ✔ Container shard2-2                           Started                                      0.9s 
+ ✔ Container shard2-3                           Started                                      0.9s 
+ ✔ Container configSrv                          Started                                      1.0s 
+ ✔ Container mongos_router                      Started                                      1.0s 
+ ✔ Container pymongo_api                        Started                                      1.0s 
