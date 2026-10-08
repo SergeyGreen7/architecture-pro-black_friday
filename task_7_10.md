@@ -130,8 +130,7 @@ db.carts.updateOne({ owner_id: "u123", status: "active" }, { $set: { status: "or
 Если шард-ключ — `category`, все эти товары лежат на одном шарде.
 Шард перегревается по CPU, I/O и соединениям, остальные простаивают.
 
-Правило: шард-ключ с малой кардинальностью (`category`, `geo_zone`, `status`) нельзя использовать.
-
+Правило: один только `category` / `geo_zone` / `status` как шард-ключ нельзя — мало значений, всё на одном шарде. Для зон берут составной ключ `{ category: 1, _id: 1 }` и вешают горячую зону на несколько шардов.
 ---
 
 ## 1. Метрики
@@ -227,6 +226,60 @@ sh.moveChunk("somedb.products", { _id: ObjectId("...") }, "shard2")
 ```
 
 Jumbo-чанк балансировщик не двигает — сначала `split`.
+
+### Zone / tag-aware sharding
+
+Hashed `{ _id }` размазывает все категории равномерно. Если каталог «Электроника» нужно держать на выделенных узлах (больше CPU), включают **зоны**: balancer кладёт чанки только на шарды с нужным тегом.
+
+Одна зона на один шард для «Электроники» — это снова горячий шард. Зону `electronics` вешают на **несколько** шардов. Шард-ключ ranged, не hashed: `{ category: 1, _id: 1 }`. Поле `_id` режет категорию на чанки, теги раскладывают их по шардам зоны.
+
+```js
+// ключ с префиксом category, иначе диапазоны зоны не задать
+sh.reshardCollection("somedb.products", { category: 1, _id: 1 })
+
+sh.addShardToZone("shard1", "electronics")
+sh.addShardToZone("shard2", "electronics")   // горячая категория на двух шардах
+sh.addShardToZone("shard3", "other")
+
+sh.updateZoneKeyRange(
+  "somedb.products",
+  { category: "Электроника", _id: MinKey },
+  { category: "Электроника", _id: MaxKey },
+  "electronics"
+)
+sh.updateZoneKeyRange(
+  "somedb.products",
+  { category: MinKey, _id: MinKey },
+  { category: "Электроника", _id: MinKey },
+  "other"
+)
+sh.updateZoneKeyRange(
+  "somedb.products",
+  { category: "Электроника", _id: MaxKey },
+  { category: MaxKey, _id: MaxKey },
+  "other"
+)
+
+sh.status()
+```
+
+Balancer сам уедет чанки «Электроники» на `shard1`+`shard2`. Запрос `{ category: "Электроника" }` идёт только в зону, не в scatter-gather по всему кластеру.
+
+Когда ops в зоне снова > 60% — добавить шард в ту же зону, не перешардировать всё:
+
+```js
+sh.addShard("shard4/shard4:27018")
+sh.addShardToZone("shard4", "electronics")
+```
+
+Снять зону:
+
+```js
+sh.removeRangeFromZone("somedb.products", { category: "Электроника", _id: MinKey }, { category: "Электроника", _id: MaxKey })
+sh.removeShardFromZone("shard1", "electronics")
+```
+
+Hashed-ключ с зонами не сочетается: диапазон `{ _id: hashed }` нельзя привязать к категории. Сначала ranged `{ category: 1, _id: 1 }`, потом теги.
 
 ### Чтобы не повторилось
 
